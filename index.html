@@ -1,0 +1,113 @@
+<script src="https://kaboomjs.com/lib/0.5.1/kaboom.js"></script>
+<script type="module">
+
+const MAP_WIDTH = 320; 
+const MAP_HEIGHT = 200; 
+const BLOCK_SIZE = 11;
+
+const MOVE_DELTA = 20000; 
+const ALIEN_SPEED = 100; 
+
+const THRUST_DELTA = 
+
+kaboom({
+	global: true,
+	fullscreen: false,
+    clearColor: [0, 0, 0, 1],
+    width: MAP_WIDTH,
+    height: MAP_HEIGHT,
+	scale: 2,
+    debug: true
+});
+
+loadSprite("alien","images/alien.png"); 
+loadSprite("stars","images/stars.png"); 
+loadSprite("cabin","images/cabin.png"); 
+
+scene("main", () => {
+
+    layers([
+    "bg",
+    "obj",
+    "ui",],
+    "obj");
+
+
+    var stars = add([
+        sprite("stars"),
+        pos(0,0),
+        rotate(0), 
+        layer("bg")
+    ]);
+
+    add([
+        sprite("cabin"),
+        layer("ui")
+    ]);
+
+    var aliens = []; 
+
+    action("alien", (alien)=>{
+        alien.zpos += alien.speed * dt();
+        alien.scale = alien.zpos / 200;
+        console.log(alien.scale); 
+        if (alien.zpos > 400){
+            destroy(alien); 
+        }
+    })
+
+    keyDown("left", () => {
+        const delta =  MOVE_DELTA * dt(); 
+        stars.move(delta, 0);
+        moveAliens(delta, 0);
+    });
+
+    keyDown("right", () => {
+        const delta =  -1 * MOVE_DELTA * dt(); 
+        stars.move(delta, 0);
+        moveAliens(delta, 0);
+    });
+
+    keyDown("up", () => {
+        const delta =  -1 * MOVE_DELTA * dt(); 
+        stars.move(0, delta);
+        moveAliens(0, delta);
+    });
+
+    keyDown("down", () => {
+        const delta = MOVE_DELTA * dt();
+        stars.move(0, delta);
+        moveAliens(0, delta);
+    });
+
+
+    function moveAliens(x, y){
+        aliens.forEach( (alien) =>{
+            alien.move(x, y); 
+        }); 
+    }
+
+    function spawnAlien(){
+        const x = rand(0 , 320); 
+        const y = rand(0 , 200); 
+        const halfSpeed = ALIEN_SPEED / 2; 
+        var newAlien = add([
+            sprite("alien"), 
+            pos(x,y), 
+            scale(0.2), 
+            {
+                zpos: 0, 
+                speed: ALIEN_SPEED + rand(-1* halfSpeed, halfSpeed)
+            }, 
+            "alien"
+        ]);
+
+        aliens.push(newAlien); 
+    }
+
+    loop(0.6, spawnAlien); 
+
+}); 
+
+start("main");
+</script>
